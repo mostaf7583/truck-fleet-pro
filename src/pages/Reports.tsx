@@ -17,9 +17,32 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Reports() {
   const [period, setPeriod] = useState<string>('monthly');
+  const { toast } = useToast();
+
+  const handleExport = () => {
+    // Basic CSV Export implementation
+    const headers = ['Month', 'Revenue', 'Expenses', 'Profit'];
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + headers.join(",") + "\n"
+      + monthlyData.map(row => `${row.month},${row.revenue},${row.expenses},${row.profit}`).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "financial_reports.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: 'تم تصدير التقرير',
+      description: 'تم تحميل ملف التقرير بنجاح.',
+    });
+  };
 
   // Calculate profit per truck
   const truckProfits = mockTrucks.map(truck => {
@@ -91,7 +114,7 @@ export default function Reports() {
               <SelectItem value="yearly">سنوي</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleExport}>
             <Download className="h-4 w-4" />
             تصدير
           </Button>
