@@ -36,15 +36,24 @@ const statusStyles = {
   inactive: 'bg-muted text-muted-foreground',
 };
 
+const statusLabels = {
+  active: 'نشط',
+  maintenance: 'صيانة',
+  inactive: 'غير نشط',
+};
+
 export default function Trucks() {
   const [trucks, setTrucks] = useState<Truck[]>(mockTrucks);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedTruck, setSelectedTruck] = useState<Truck | null>(null);
   const { toast } = useToast();
 
   const filteredTrucks = trucks.filter(truck => {
-    const matchesSearch = 
+    const matchesSearch =
       truck.plateNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       truck.model.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || truck.status === statusFilter;
@@ -67,18 +76,57 @@ export default function Trucks() {
     setTrucks([...trucks, newTruck]);
     setIsAddDialogOpen(false);
     toast({
-      title: 'Truck Added',
-      description: `${newTruck.plateNumber} has been added to the fleet.`,
+      title: 'تم إضافة الشاحنة',
+      description: `تم إضافة الشاحنة ${newTruck.plateNumber} إلى الأسطول بنجاح.`,
+    });
+  };
+
+  const handleEditTruck = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedTruck) return;
+
+    const formData = new FormData(e.currentTarget);
+    const updatedTrucks = trucks.map(truck => {
+      if (truck.id === selectedTruck.id) {
+        return {
+          ...truck,
+          plateNumber: formData.get('plateNumber') as string,
+          model: formData.get('model') as string,
+          status: formData.get('status') as Truck['status'],
+          capacity: Number(formData.get('capacity')),
+          year: Number(formData.get('year')),
+          mileage: Number(formData.get('mileage')),
+        };
+      }
+      return truck;
+    });
+
+    setTrucks(updatedTrucks);
+    setIsEditDialogOpen(false);
+    setSelectedTruck(null);
+    toast({
+      title: 'تم تحديث الشاحنة',
+      description: 'تم تحديث تفاصيل الشاحنة بنجاح.',
     });
   };
 
   const handleDeleteTruck = (id: string) => {
     setTrucks(trucks.filter(t => t.id !== id));
     toast({
-      title: 'Truck Removed',
-      description: 'The truck has been removed from the fleet.',
+      title: 'تم حذف الشاحنة',
+      description: 'تم إزالة الشاحنة من الأسطول.',
       variant: 'destructive',
     });
+  };
+
+  const openViewDialog = (truck: Truck) => {
+    setSelectedTruck(truck);
+    setIsViewDialogOpen(true);
+  };
+
+  const openEditDialog = (truck: Truck) => {
+    setSelectedTruck(truck);
+    setIsEditDialogOpen(true);
   };
 
   return (
@@ -86,69 +134,69 @@ export default function Trucks() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Trucks</h1>
-          <p className="text-muted-foreground">Manage your fleet vehicles</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">الشاحنات</h1>
+          <p className="text-muted-foreground">إدارة مركبات الأسطول الخاصة بك</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="gradient" className="gap-2">
               <Plus className="h-4 w-4" />
-              Add Truck
+              إضافة شاحنة
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Add New Truck</DialogTitle>
+              <DialogTitle>إضافة شاحنة جديدة</DialogTitle>
               <DialogDescription>
-                Enter the details of the new truck to add to your fleet.
+                أدخل تفاصيل الشاحنة الجديدة لإضافتها إلى الأسطول.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddTruck} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="plateNumber">Plate Number</Label>
-                  <Input id="plateNumber" name="plateNumber" placeholder="ABC-1234" required />
+                  <Label htmlFor="plateNumber">رقم اللوحة</Label>
+                  <Input id="plateNumber" name="plateNumber" placeholder="أ ب ج - ١٢٣٤" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="model">Model</Label>
+                  <Label htmlFor="model">الموديل</Label>
                   <Input id="model" name="model" placeholder="Volvo FH16" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="year">Year</Label>
+                  <Label htmlFor="year">السنة</Label>
                   <Input id="year" name="year" type="number" placeholder="2023" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="capacity">Capacity (kg)</Label>
+                  <Label htmlFor="capacity">الحمولة (كجم)</Label>
                   <Input id="capacity" name="capacity" type="number" placeholder="25000" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="mileage">Mileage</Label>
+                  <Label htmlFor="mileage">المسافة المقطوعة (كم)</Label>
                   <Input id="mileage" name="mileage" type="number" placeholder="0" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status">الحالة</Label>
                   <Select name="status" defaultValue="active">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="maintenance">Maintenance</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="active">نشط</SelectItem>
+                      <SelectItem value="maintenance">صيانة</SelectItem>
+                      <SelectItem value="inactive">غير نشط</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
+                  إلغاء
                 </Button>
                 <Button type="submit" variant="gradient">
-                  Add Truck
+                  إضافة شاحنة
                 </Button>
               </div>
             </form>
@@ -156,27 +204,136 @@ export default function Trucks() {
         </Dialog>
       </div>
 
+      {/* View Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>تفاصيل الشاحنة</DialogTitle>
+            <DialogDescription>
+              عرض تفاصيل ومعلومات هذه الشاحنة.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTruck && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">رقم اللوحة</Label>
+                  <p className="font-medium">{selectedTruck.plateNumber}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">الموديل</Label>
+                  <p className="font-medium">{selectedTruck.model}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">السنة</Label>
+                  <p className="font-medium">{selectedTruck.year}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">الحمولة</Label>
+                  <p className="font-medium">{(selectedTruck.capacity / 1000).toFixed(0)} طن</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">المسافة المقطوعة</Label>
+                  <p className="font-medium">{selectedTruck.mileage.toLocaleString()} كم</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">الحالة</Label>
+                  <Badge variant="outline" className={cn("capitalize mt-1", statusStyles[selectedTruck.status])}>
+                    {statusLabels[selectedTruck.status] || selectedTruck.status}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>تعديل الشاحنة</DialogTitle>
+            <DialogDescription>
+              تحديث تفاصيل هذه الشاحنة.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditTruck} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-plateNumber">رقم اللوحة</Label>
+                <Input id="edit-plateNumber" name="plateNumber" defaultValue={selectedTruck?.plateNumber} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-model">الموديل</Label>
+                <Input id="edit-model" name="model" defaultValue={selectedTruck?.model} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-year">السنة</Label>
+                <Input id="edit-year" name="year" type="number" defaultValue={selectedTruck?.year} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-capacity">الحمولة (كجم)</Label>
+                <Input id="edit-capacity" name="capacity" type="number" defaultValue={selectedTruck?.capacity} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-mileage">المسافة المقطوعة (كم)</Label>
+                <Input id="edit-mileage" name="mileage" type="number" defaultValue={selectedTruck?.mileage} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-status">الحالة</Label>
+                <Select name="status" defaultValue={selectedTruck?.status}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">نشط</SelectItem>
+                    <SelectItem value="maintenance">صيانة</SelectItem>
+                    <SelectItem value="inactive">غير نشط</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                إلغاء
+              </Button>
+              <Button type="submit" variant="gradient">
+                حفظ التغييرات
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search trucks..."
+            placeholder="بحث عن شاحنة..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pr-10"
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-[180px]">
-            <Filter className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Status" />
+            <Filter className="ml-2 h-4 w-4" />
+            <SelectValue placeholder="الحالة" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="maintenance">Maintenance</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="all">كل الحالات</SelectItem>
+            <SelectItem value="active">نشط</SelectItem>
+            <SelectItem value="maintenance">صيانة</SelectItem>
+            <SelectItem value="inactive">غير نشط</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -201,20 +358,20 @@ export default function Trucks() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Eye className="mr-2 h-4 w-4" />
-                    View Details
+                  <DropdownMenuItem onClick={() => openViewDialog(truck)} className="flex items-center gap-2 justify-end">
+                    <span>عرض التفاصيل</span>
+                    <Eye className="h-4 w-4" />
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
+                  <DropdownMenuItem onClick={() => openEditDialog(truck)} className="flex items-center gap-2 justify-end">
+                    <span>تعديل</span>
+                    <Edit className="h-4 w-4" />
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className="text-destructive"
+                  <DropdownMenuItem
+                    className="text-destructive flex items-center gap-2 justify-end"
                     onClick={() => handleDeleteTruck(truck.id)}
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    <span>حذف</span>
+                    <Trash2 className="h-4 w-4" />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -222,22 +379,22 @@ export default function Trucks() {
 
             <div className="mt-4 space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Status</span>
+                <span className="text-muted-foreground">الحالة</span>
                 <Badge variant="outline" className={cn("capitalize", statusStyles[truck.status])}>
-                  {truck.status}
+                  {statusLabels[truck.status] || truck.status}
                 </Badge>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Year</span>
+                <span className="text-muted-foreground">السنة</span>
                 <span className="font-medium">{truck.year}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Capacity</span>
-                <span className="font-medium">{(truck.capacity / 1000).toFixed(0)}T</span>
+                <span className="text-muted-foreground">الحمولة</span>
+                <span className="font-medium">{(truck.capacity / 1000).toFixed(0)} طن</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Mileage</span>
-                <span className="font-medium">{truck.mileage.toLocaleString()} km</span>
+                <span className="text-muted-foreground">المسافة</span>
+                <span className="font-medium">{truck.mileage.toLocaleString()} كم</span>
               </div>
             </div>
 
@@ -249,8 +406,8 @@ export default function Trucks() {
 
       {filteredTrucks.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-12">
-          <p className="text-lg font-medium text-muted-foreground">No trucks found</p>
-          <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+          <p className="text-lg font-medium text-muted-foreground">لم يتم العثور على شاحنات</p>
+          <p className="text-sm text-muted-foreground">حاول تغيير البحث أو الفلاتر</p>
         </div>
       )}
     </div>

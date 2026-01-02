@@ -37,6 +37,12 @@ const statusStyles = {
   off_duty: 'bg-muted text-muted-foreground',
 };
 
+const statusLabels: Record<string, string> = {
+  available: 'متاح',
+  on_trip: 'في رحلة',
+  off_duty: 'خارج الخدمة',
+};
+
 export default function Drivers() {
   const [drivers, setDrivers] = useState<Driver[]>(mockDrivers);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,16 +74,16 @@ export default function Drivers() {
     setDrivers([...drivers, newDriver]);
     setIsAddDialogOpen(false);
     toast({
-      title: 'Driver Added',
-      description: `${newDriver.firstName} ${newDriver.lastName} has been added.`,
+      title: 'تم إضافة السائق',
+      description: `تم إضافة السائق ${newDriver.firstName} ${newDriver.lastName} بنجاح.`,
     });
   };
 
   const handleDeleteDriver = (id: string) => {
     setDrivers(drivers.filter(d => d.id !== id));
     toast({
-      title: 'Driver Removed',
-      description: 'The driver has been removed from the system.',
+      title: 'تم حذف السائق',
+      description: 'تم إزالة السائق من النظام.',
       variant: 'destructive',
     });
   };
@@ -87,60 +93,60 @@ export default function Drivers() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Drivers</h1>
-          <p className="text-muted-foreground">Manage your driver workforce</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">السائقين</h1>
+          <p className="text-muted-foreground">إدارة فرق السائقين</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="gradient" className="gap-2">
               <Plus className="h-4 w-4" />
-              Add Driver
+              إضافة سائق
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Add New Driver</DialogTitle>
+              <DialogTitle>إضافة سائق جديد</DialogTitle>
               <DialogDescription>
-                Enter the driver's information to add them to your team.
+                أدخل معلومات السائق للإضافة إلى الفريق.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddDriver} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" name="firstName" placeholder="John" required />
+                  <Label htmlFor="firstName">الاسم الأول</Label>
+                  <Input id="firstName" name="firstName" placeholder="محمد" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" name="lastName" placeholder="Doe" required />
+                  <Label htmlFor="lastName">اسم العائلة</Label>
+                  <Input id="lastName" name="lastName" placeholder="أحمد" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="licenseNumber">License Number</Label>
+                  <Label htmlFor="licenseNumber">رقم الرخصة</Label>
                   <Input id="licenseNumber" name="licenseNumber" placeholder="DL-123456" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="licenseExpiry">License Expiry</Label>
+                  <Label htmlFor="licenseExpiry">تاريخ انتهاء الرخصة</Label>
                   <Input id="licenseExpiry" name="licenseExpiry" type="date" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" placeholder="+1-555-0100" required />
+                  <Label htmlFor="phone">الهاتف</Label>
+                  <Input id="phone" name="phone" placeholder="+966-555-0100" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">البريد الإلكتروني</Label>
                   <Input id="email" name="email" type="email" placeholder="driver@company.com" required />
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
+                  إلغاء
                 </Button>
                 <Button type="submit" variant="gradient">
-                  Add Driver
+                  إضافة سائق
                 </Button>
               </div>
             </form>
@@ -150,12 +156,12 @@ export default function Drivers() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search drivers..."
+          placeholder="بحث عن سائفين..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
+          className="pr-10"
         />
       </div>
 
@@ -163,7 +169,7 @@ export default function Drivers() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredDrivers.map((driver, index) => {
           const truck = getTruck(driver.assignedTruckId);
-          
+
           return (
             <div
               key={driver.id}
@@ -189,20 +195,20 @@ export default function Drivers() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Details
+                    <DropdownMenuItem className="flex items-center gap-2 justify-end">
+                      <span>عرض التفاصيل</span>
+                      <Eye className="h-4 w-4" />
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
+                    <DropdownMenuItem className="flex items-center gap-2 justify-end">
+                      <span>تعديل</span>
+                      <Edit className="h-4 w-4" />
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-destructive"
+                    <DropdownMenuItem
+                      className="text-destructive flex items-center gap-2 justify-end"
                       onClick={() => handleDeleteDriver(driver.id)}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
+                      <span>حذف</span>
+                      <Trash2 className="h-4 w-4" />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -210,17 +216,17 @@ export default function Drivers() {
 
               <div className="mt-4 space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-muted-foreground">الحالة</span>
                   <Badge variant="outline" className={cn("capitalize", statusStyles[driver.status])}>
-                    {driver.status.replace('_', ' ')}
+                    {statusLabels[driver.status] || driver.status}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Assigned Truck</span>
-                  <span className="font-medium">{truck?.plateNumber || 'Unassigned'}</span>
+                  <span className="text-muted-foreground">الشاحنة المعينة</span>
+                  <span className="font-medium">{truck?.plateNumber || 'غير معين'}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">License Expiry</span>
+                  <span className="text-muted-foreground">انتهاء الرخصة</span>
                   <span className="font-medium">{format(driver.licenseExpiry, 'MMM d, yyyy')}</span>
                 </div>
               </div>
@@ -228,11 +234,11 @@ export default function Drivers() {
               <div className="mt-4 flex gap-2 border-t pt-4">
                 <Button variant="ghost" size="sm" className="flex-1 gap-2 text-muted-foreground hover:text-foreground">
                   <Phone className="h-4 w-4" />
-                  Call
+                  اتصال
                 </Button>
                 <Button variant="ghost" size="sm" className="flex-1 gap-2 text-muted-foreground hover:text-foreground">
                   <Mail className="h-4 w-4" />
-                  Email
+                  بريد
                 </Button>
               </div>
 
@@ -245,8 +251,8 @@ export default function Drivers() {
 
       {filteredDrivers.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-12">
-          <p className="text-lg font-medium text-muted-foreground">No drivers found</p>
-          <p className="text-sm text-muted-foreground">Try adjusting your search</p>
+          <p className="text-lg font-medium text-muted-foreground">لا يوجد سائقين</p>
+          <p className="text-sm text-muted-foreground">جرب تغيير البحث</p>
         </div>
       )}
     </div>

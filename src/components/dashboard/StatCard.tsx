@@ -31,19 +31,19 @@ const iconVariantStyles = {
   accent: 'bg-accent-foreground/20 text-accent-foreground',
 };
 
-export function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  trend, 
+export function StatCard({
+  title,
+  value,
+  icon: Icon,
+  trend,
   variant = 'default',
   style,
-  className 
+  className
 }: StatCardProps) {
   const isGradient = variant !== 'default';
 
   return (
-    <div 
+    <div
       style={style}
       className={cn(
         "relative overflow-hidden rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg",
@@ -65,14 +65,14 @@ export function StatCard({
           {trend && (
             <div className={cn(
               "flex items-center gap-1 text-sm font-medium",
-              trend.isPositive 
-                ? isGradient ? "text-current" : "text-success" 
+              trend.isPositive
+                ? isGradient ? "text-current" : "text-success"
                 : isGradient ? "text-current" : "text-destructive"
             )}>
               <span>{trend.isPositive ? '↑' : '↓'}</span>
               <span>{Math.abs(trend.value)}%</span>
               <span className={cn("font-normal", isGradient ? "opacity-70" : "text-muted-foreground")}>
-                vs last month
+                مقارنة بالشهر الماضي
               </span>
             </div>
           )}
@@ -84,7 +84,7 @@ export function StatCard({
           <Icon className="h-6 w-6" />
         </div>
       </div>
-      
+
       {/* Decorative element */}
       {isGradient && (
         <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-current opacity-10" />

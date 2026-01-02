@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Filter, MapPin, Calendar, ArrowRight } from 'lucide-react';
+import { Plus, Search, Filter, MapPin, Calendar, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +32,13 @@ const statusStyles = {
   cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
+const statusLabels: Record<string, string> = {
+  scheduled: 'مجدول',
+  in_progress: 'جاري',
+  completed: 'مكتمل',
+  cancelled: 'ملغي',
+};
+
 export default function Trips() {
   const [trips, setTrips] = useState<Trip[]>(mockTrips);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,7 +50,7 @@ export default function Trips() {
   const getTruck = (id: string) => mockTrucks.find(t => t.id === id);
 
   const filteredTrips = trips.filter(trip => {
-    const matchesSearch = 
+    const matchesSearch =
       trip.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.clientName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -69,8 +76,8 @@ export default function Trips() {
     setTrips([...trips, newTrip]);
     setIsAddDialogOpen(false);
     toast({
-      title: 'Trip Created',
-      description: `Trip from ${newTrip.origin} to ${newTrip.destination} has been scheduled.`,
+      title: 'تم إنشاء الرحلة',
+      description: `تم جدولة رحلة من ${newTrip.origin} إلى ${newTrip.destination}.`,
     });
   };
 
@@ -79,50 +86,50 @@ export default function Trips() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Trips</h1>
-          <p className="text-muted-foreground">Manage transportation schedules</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">الرحلات</h1>
+          <p className="text-muted-foreground">إدارة جداول النقل</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="gradient" className="gap-2">
               <Plus className="h-4 w-4" />
-              Schedule Trip
+              جدولة رحلة
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Schedule New Trip</DialogTitle>
+              <DialogTitle>جدولة رحلة جديدة</DialogTitle>
               <DialogDescription>
-                Create a new transportation schedule.
+                إنشاء جدول نقل جديد.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddTrip} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="origin">Origin</Label>
-                  <Input id="origin" name="origin" placeholder="New York, NY" required />
+                  <Label htmlFor="origin">نقطة الانطلاق</Label>
+                  <Input id="origin" name="origin" placeholder="الرياض" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="destination">Destination</Label>
-                  <Input id="destination" name="destination" placeholder="Los Angeles, CA" required />
+                  <Label htmlFor="destination">الوجهة</Label>
+                  <Input id="destination" name="destination" placeholder="جدة" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date</Label>
+                  <Label htmlFor="startDate">تاريخ البدء</Label>
                   <Input id="startDate" name="startDate" type="date" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="distance">Distance (km)</Label>
-                  <Input id="distance" name="distance" type="number" placeholder="2800" required />
+                  <Label htmlFor="distance">المسافة (كم)</Label>
+                  <Input id="distance" name="distance" type="number" placeholder="900" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="driverId">Driver</Label>
+                  <Label htmlFor="driverId">السائق</Label>
                   <Select name="driverId" required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select driver" />
+                      <SelectValue placeholder="اختر سائق" />
                     </SelectTrigger>
                     <SelectContent>
                       {mockDrivers.filter(d => d.status === 'available').map(driver => (
@@ -134,10 +141,10 @@ export default function Trips() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="truckId">Truck</Label>
+                  <Label htmlFor="truckId">الشاحنة</Label>
                   <Select name="truckId" required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select truck" />
+                      <SelectValue placeholder="اختر شاحنة" />
                     </SelectTrigger>
                     <SelectContent>
                       {mockTrucks.filter(t => t.status === 'active').map(truck => (
@@ -150,15 +157,15 @@ export default function Trips() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="clientName">Client Name</Label>
-                <Input id="clientName" name="clientName" placeholder="Client Company Inc." required />
+                <Label htmlFor="clientName">اسم العميل</Label>
+                <Input id="clientName" name="clientName" placeholder="شركة الناقل..." required />
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
+                  إلغاء
                 </Button>
                 <Button type="submit" variant="gradient">
-                  Schedule Trip
+                  جدولة الرحلة
                 </Button>
               </div>
             </form>
@@ -169,25 +176,25 @@ export default function Trips() {
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search trips..."
+            placeholder="بحث عن رحلات..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pr-10"
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full sm:w-[180px]">
-            <Filter className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Status" />
+            <Filter className="ml-2 h-4 w-4" />
+            <SelectValue placeholder="الحالة" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="scheduled">Scheduled</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="all">كل الحالات</SelectItem>
+            <SelectItem value="scheduled">مجدول</SelectItem>
+            <SelectItem value="in_progress">جاري</SelectItem>
+            <SelectItem value="completed">مكتمل</SelectItem>
+            <SelectItem value="cancelled">ملغي</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -197,7 +204,7 @@ export default function Trips() {
         {filteredTrips.map((trip, index) => {
           const driver = getDriver(trip.driverId);
           const truck = getTruck(trip.truckId);
-          
+
           return (
             <div
               key={trip.id}
@@ -213,9 +220,9 @@ export default function Trips() {
                   <div className="flex items-center gap-2">
                     <div>
                       <p className="font-display text-lg font-bold">{trip.origin}</p>
-                      <p className="text-sm text-muted-foreground">{trip.distance.toLocaleString()} km</p>
+                      <p className="text-sm text-muted-foreground">{trip.distance.toLocaleString()} كم</p>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                    <ArrowLeft className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-display text-lg font-bold">{trip.destination}</p>
                       <p className="text-sm text-muted-foreground">{trip.clientName}</p>
@@ -230,15 +237,15 @@ export default function Trips() {
                     <span>{format(trip.startDate, 'MMM d, yyyy')}</span>
                   </div>
                   <div className="text-sm">
-                    <span className="text-muted-foreground">Driver: </span>
+                    <span className="text-muted-foreground">السائق: </span>
                     <span className="font-medium">{driver?.firstName} {driver?.lastName}</span>
                   </div>
                   <div className="text-sm">
-                    <span className="text-muted-foreground">Truck: </span>
+                    <span className="text-muted-foreground">الشاحنة: </span>
                     <span className="font-medium">{truck?.plateNumber}</span>
                   </div>
                   <Badge variant="outline" className={cn("capitalize", statusStyles[trip.status])}>
-                    {trip.status.replace('_', ' ')}
+                    {statusLabels[trip.status] || trip.status}
                   </Badge>
                 </div>
               </div>
@@ -249,8 +256,8 @@ export default function Trips() {
 
       {filteredTrips.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-12">
-          <p className="text-lg font-medium text-muted-foreground">No trips found</p>
-          <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+          <p className="text-lg font-medium text-muted-foreground">لا يوجد رحلات</p>
+          <p className="text-sm text-muted-foreground">حاول تغيير البحث أو الفلاتر</p>
         </div>
       )}
     </div>

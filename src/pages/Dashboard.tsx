@@ -12,23 +12,23 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div className="animate-fade-in">
-        <h1 className="font-display text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's your fleet overview.</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">لوحة التحكم</h1>
+        <p className="text-muted-foreground">مرحباً بعودتك! إليك نظرة عامة على الأسطول.</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Revenue"
-          value={`$${stats.totalRevenue.toLocaleString()}`}
+          title="إجمالي الإيرادات"
+          value={stats.totalRevenue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
           icon={DollarSign}
           variant="primary"
           trend={{ value: 12.5, isPositive: true }}
           className="animate-slide-up"
         />
         <StatCard
-          title="Net Profit"
-          value={`$${stats.netProfit.toLocaleString()}`}
+          title="صافي الربح"
+          value={stats.netProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
           icon={TrendingUp}
           variant="success"
           trend={{ value: 8.2, isPositive: true }}
@@ -36,14 +36,14 @@ export default function Dashboard() {
           style={{ animationDelay: '100ms' }}
         />
         <StatCard
-          title="Active Trucks"
+          title="الشاحنات النشطة"
           value={stats.activeTrucks}
           icon={Truck}
           className="animate-slide-up"
           style={{ animationDelay: '200ms' }}
         />
         <StatCard
-          title="Available Drivers"
+          title="السائقين المتاحين"
           value={stats.availableDrivers}
           icon={Users}
           className="animate-slide-up"
@@ -54,20 +54,20 @@ export default function Dashboard() {
       {/* Secondary Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
-          title="Active Trips"
+          title="الرحلات النشطة"
           value={stats.activeTrips}
           icon={Route}
           variant="accent"
         />
         <StatCard
-          title="Total Expenses"
-          value={`$${stats.totalExpenses.toLocaleString()}`}
+          title="إجمالي المصروفات"
+          value={stats.totalExpenses.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
           icon={AlertCircle}
           variant="warning"
         />
         <StatCard
-          title="Pending Payments"
-          value={`$${stats.pendingPayments.toLocaleString()}`}
+          title="مدفوعات معلقة"
+          value={stats.pendingPayments.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
           icon={DollarSign}
         />
       </div>

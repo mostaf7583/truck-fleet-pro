@@ -55,8 +55,8 @@ export default function FuelRecords() {
     setRecords([...records, newRecord]);
     setIsAddDialogOpen(false);
     toast({
-      title: 'Fuel Record Added',
-      description: `Fuel record for ${getTruck(newRecord.truckId)?.plateNumber} has been added.`,
+      title: 'تم إضافة سجل الوقود',
+      description: `تم إضافة سجل وقود للشاحنة ${getTruck(newRecord.truckId)?.plateNumber} بنجاح.`,
     });
   };
 
@@ -65,29 +65,29 @@ export default function FuelRecords() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Fuel Records</h1>
-          <p className="text-muted-foreground">Track fuel consumption and costs</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">سجلات الوقود</h1>
+          <p className="text-muted-foreground">تتبع استهلاك الوقود والتكاليف</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="gradient" className="gap-2">
               <Plus className="h-4 w-4" />
-              Add Fuel Record
+              إضافة سجل وقود
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Add Fuel Record</DialogTitle>
+              <DialogTitle>إضافة سجل وقود</DialogTitle>
               <DialogDescription>
-                Record a new fuel purchase.
+                تسجيل عملية شراء وقود جديدة.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddRecord} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="truckId">Truck</Label>
+                <Label htmlFor="truckId">الشاحنة</Label>
                 <Select name="truckId" required>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select truck" />
+                    <SelectValue placeholder="اختر شاحنة" />
                   </SelectTrigger>
                   <SelectContent>
                     {mockTrucks.map(truck => (
@@ -100,34 +100,34 @@ export default function FuelRecords() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Amount (L)</Label>
+                  <Label htmlFor="amount">الكمية (لتر)</Label>
                   <Input id="amount" name="amount" type="number" placeholder="450" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="cost">Cost ($)</Label>
+                  <Label htmlFor="cost">التكلفة</Label>
                   <Input id="cost" name="cost" type="number" step="0.01" placeholder="1575.00" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
+                  <Label htmlFor="date">التاريخ</Label>
                   <Input id="date" name="date" type="date" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="odometerReading">Odometer Reading</Label>
+                  <Label htmlFor="odometerReading">قراءة العداد</Label>
                   <Input id="odometerReading" name="odometerReading" type="number" placeholder="45500" required />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="station">Station</Label>
-                <Input id="station" name="station" placeholder="Shell Highway 66" required />
+                <Label htmlFor="station">المحطة</Label>
+                <Input id="station" name="station" placeholder="محطة بترول..." required />
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
+                  إلغاء
                 </Button>
                 <Button type="submit" variant="gradient">
-                  Add Record
+                  إضافة السجل
                 </Button>
               </div>
             </form>
@@ -143,8 +143,8 @@ export default function FuelRecords() {
               <DollarSign className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Fuel Cost</p>
-              <p className="font-display text-2xl font-bold">${totalFuelCost.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">إجمالي تكلفة الوقود</p>
+              <p className="font-display text-2xl font-bold">{totalFuelCost.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}</p>
             </div>
           </div>
         </div>
@@ -154,8 +154,8 @@ export default function FuelRecords() {
               <Fuel className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Fuel Volume</p>
-              <p className="font-display text-2xl font-bold">{totalFuelAmount.toLocaleString()} L</p>
+              <p className="text-sm text-muted-foreground">إجمالي كمية الوقود</p>
+              <p className="font-display text-2xl font-bold text-left" dir="ltr">{totalFuelAmount.toLocaleString()} L</p>
             </div>
           </div>
         </div>
@@ -165,8 +165,8 @@ export default function FuelRecords() {
               <Calendar className="h-5 w-5 text-success" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Avg Cost/Liter</p>
-              <p className="font-display text-2xl font-bold">${(totalFuelCost / totalFuelAmount).toFixed(2)}</p>
+              <p className="text-sm text-muted-foreground">متوسط تكلفة اللتر</p>
+              <p className="font-display text-2xl font-bold">{(totalFuelCost / totalFuelAmount).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })}</p>
             </div>
           </div>
         </div>
@@ -174,12 +174,12 @@ export default function FuelRecords() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search by truck or station..."
+          placeholder="بحث بالشاحنة أو المحطة..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
+          className="pr-10"
         />
       </div>
 
@@ -189,20 +189,20 @@ export default function FuelRecords() {
           <table className="w-full">
             <thead>
               <tr className="border-b bg-muted/30">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Truck</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Date</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Station</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Amount</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Cost</th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Odometer</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">الشاحنة</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">التاريخ</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">المحطة</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">الكمية</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">التكلفة</th>
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">العداد</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {filteredRecords.map((record, index) => {
                 const truck = getTruck(record.truckId);
-                
+
                 return (
-                  <tr 
+                  <tr
                     key={record.id}
                     className="transition-colors hover:bg-muted/20 animate-slide-up"
                     style={{ animationDelay: `${index * 50}ms` }}
@@ -219,13 +219,13 @@ export default function FuelRecords() {
                     <td className="px-4 py-3 text-sm">
                       {record.station}
                     </td>
-                    <td className="px-4 py-3 font-medium">
+                    <td className="px-4 py-3 font-medium" dir="ltr">
                       {record.amount} L
                     </td>
                     <td className="px-4 py-3 font-medium text-primary">
-                      ${record.cost.toLocaleString()}
+                      {record.cost.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
                     </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                    <td className="px-4 py-3 text-sm text-muted-foreground" dir="ltr">
                       {record.odometerReading.toLocaleString()} km
                     </td>
                   </tr>

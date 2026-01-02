@@ -9,16 +9,16 @@ export function FleetStatus() {
   };
 
   const data = [
-    { name: 'Active', value: statusCounts.active, color: 'hsl(142, 76%, 36%)' },
-    { name: 'Maintenance', value: statusCounts.maintenance, color: 'hsl(38, 92%, 50%)' },
-    { name: 'Inactive', value: statusCounts.inactive, color: 'hsl(215, 16%, 47%)' },
+    { name: 'نشط', value: statusCounts.active, color: 'hsl(142, 76%, 36%)' },
+    { name: 'صيانة', value: statusCounts.maintenance, color: 'hsl(38, 92%, 50%)' },
+    { name: 'غير نشط', value: statusCounts.inactive, color: 'hsl(215, 16%, 47%)' },
   ];
 
   return (
     <div className="rounded-xl border bg-card p-6 shadow-sm">
       <div className="mb-4">
-        <h3 className="font-display text-lg font-semibold">Fleet Status</h3>
-        <p className="text-sm text-muted-foreground">Current truck availability</p>
+        <h3 className="font-display text-lg font-semibold">حالة الأسطول</h3>
+        <p className="text-sm text-muted-foreground">توفر الشاحنات الحالي</p>
       </div>
       <div className="h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
@@ -36,8 +36,8 @@ export function FleetStatus() {
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip 
-              contentStyle={{ 
+            <Tooltip
+              contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
@@ -49,9 +49,9 @@ export function FleetStatus() {
       <div className="mt-4 flex flex-wrap justify-center gap-4">
         {data.map((item) => (
           <div key={item.name} className="flex items-center gap-2">
-            <div 
-              className="h-3 w-3 rounded-full" 
-              style={{ backgroundColor: item.color }} 
+            <div
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: item.color }}
             />
             <span className="text-sm text-muted-foreground">
               {item.name}: {item.value}

@@ -15,6 +15,13 @@ const statusStyles = {
   cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
+const statusLabels: Record<string, string> = {
+  scheduled: 'مجدول',
+  in_progress: 'جاري',
+  completed: 'مكتمل',
+  cancelled: 'ملغي',
+};
+
 export function RecentTripsTable({ trips }: RecentTripsTableProps) {
   const getDriver = (id: string) => mockDrivers.find(d => d.id === id);
   const getTruck = (id: string) => mockTrucks.find(t => t.id === id);
@@ -22,27 +29,27 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
   return (
     <div className="rounded-xl border bg-card shadow-sm">
       <div className="border-b p-4">
-        <h3 className="font-display text-lg font-semibold">Recent Trips</h3>
-        <p className="text-sm text-muted-foreground">Latest transportation activities</p>
+        <h3 className="font-display text-lg font-semibold">الرحلات الأخيرة</h3>
+        <p className="text-sm text-muted-foreground">آخر أنشطة النقل</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b bg-muted/30">
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Route</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Driver</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Truck</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Date</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">المسار</th>
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">السائق</th>
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">الشاحنة</th>
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">التاريخ</th>
+              <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">الحالة</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {trips.map((trip, index) => {
               const driver = getDriver(trip.driverId);
               const truck = getTruck(trip.truckId);
-              
+
               return (
-                <tr 
+                <tr
                   key={trip.id}
                   className="transition-colors hover:bg-muted/20"
                   style={{ animationDelay: `${index * 50}ms` }}
@@ -50,7 +57,7 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
                   <td className="px-4 py-3">
                     <div>
                       <p className="font-medium">{trip.origin}</p>
-                      <p className="text-sm text-muted-foreground">→ {trip.destination}</p>
+                      <p className="text-sm text-muted-foreground">← {trip.destination}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -66,11 +73,11 @@ export function RecentTripsTable({ trips }: RecentTripsTableProps) {
                     {format(trip.startDate, 'MMM d, yyyy')}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={cn("capitalize", statusStyles[trip.status])}
                     >
-                      {trip.status.replace('_', ' ')}
+                      {statusLabels[trip.status] || trip.status}
                     </Badge>
                   </td>
                 </tr>

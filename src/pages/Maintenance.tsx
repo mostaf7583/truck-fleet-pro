@@ -32,6 +32,13 @@ const typeStyles = {
   emergency: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
+const typeLabels: Record<string, string> = {
+  routine: 'دورية',
+  repair: 'إصلاح',
+  inspection: 'فحص',
+  emergency: 'طارئة',
+};
+
 export default function Maintenance() {
   const [records, setRecords] = useState<MaintenanceRecord[]>(mockMaintenanceRecords);
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,8 +72,8 @@ export default function Maintenance() {
     setRecords([...records, newRecord]);
     setIsAddDialogOpen(false);
     toast({
-      title: 'Maintenance Record Added',
-      description: `Maintenance record for ${getTruck(newRecord.truckId)?.plateNumber} has been added.`,
+      title: 'تم إضافة سجل الصيانة',
+      description: `تم إضافة سجل صيانة للشاحنة ${getTruck(newRecord.truckId)?.plateNumber} بنجاح.`,
     });
   };
 
@@ -75,30 +82,30 @@ export default function Maintenance() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Maintenance</h1>
-          <p className="text-muted-foreground">Track vehicle maintenance and repairs</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight">الصيانة</h1>
+          <p className="text-muted-foreground">تتبع صيانة وإصلاح المركبات</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="gradient" className="gap-2">
               <Plus className="h-4 w-4" />
-              Add Maintenance
+              إضافة سجل صيانة
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Add Maintenance Record</DialogTitle>
+              <DialogTitle>إضافة سجل صيانة</DialogTitle>
               <DialogDescription>
-                Record a new maintenance or repair activity.
+                تسجيل نشاط صيانة أو إصلاح جديد.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddRecord} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="truckId">Truck</Label>
+                  <Label htmlFor="truckId">الشاحنة</Label>
                   <Select name="truckId" required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select truck" />
+                      <SelectValue placeholder="اختر شاحنة" />
                     </SelectTrigger>
                     <SelectContent>
                       {mockTrucks.map(truck => (
@@ -110,44 +117,44 @@ export default function Maintenance() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="type">Type</Label>
+                  <Label htmlFor="type">النوع</Label>
                   <Select name="type" required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
+                      <SelectValue placeholder="اختر النوع" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="routine">Routine</SelectItem>
-                      <SelectItem value="repair">Repair</SelectItem>
-                      <SelectItem value="inspection">Inspection</SelectItem>
-                      <SelectItem value="emergency">Emergency</SelectItem>
+                      <SelectItem value="routine">دورية</SelectItem>
+                      <SelectItem value="repair">إصلاح</SelectItem>
+                      <SelectItem value="inspection">فحص</SelectItem>
+                      <SelectItem value="emergency">طارئة</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Input id="description" name="description" placeholder="Oil change and filter replacement" required />
+                <Label htmlFor="description">الوصف</Label>
+                <Input id="description" name="description" placeholder="تغيير زيت..." required />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="cost">Cost ($)</Label>
+                  <Label htmlFor="cost">التكلفة</Label>
                   <Input id="cost" name="cost" type="number" step="0.01" placeholder="450.00" required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
+                  <Label htmlFor="date">التاريخ</Label>
                   <Input id="date" name="date" type="date" required />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="vendor">Vendor</Label>
-                <Input id="vendor" name="vendor" placeholder="Quick Lube Pro" required />
+                <Label htmlFor="vendor">المورد</Label>
+                <Input id="vendor" name="vendor" placeholder="مركز الصيانة..." required />
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
+                  إلغاء
                 </Button>
                 <Button type="submit" variant="gradient">
-                  Add Record
+                  إضافة السجل
                 </Button>
               </div>
             </form>
@@ -163,8 +170,8 @@ export default function Maintenance() {
               <DollarSign className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Maintenance Cost</p>
-              <p className="font-display text-2xl font-bold">${totalMaintenanceCost.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">إجمالي تكلفة الصيانة</p>
+              <p className="font-display text-2xl font-bold">{totalMaintenanceCost.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}</p>
             </div>
           </div>
         </div>
@@ -174,7 +181,7 @@ export default function Maintenance() {
               <Wrench className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Records</p>
+              <p className="text-sm text-muted-foreground">إجمالي السجلات</p>
               <p className="font-display text-2xl font-bold">{records.length}</p>
             </div>
           </div>
@@ -185,7 +192,7 @@ export default function Maintenance() {
               <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Emergency Repairs</p>
+              <p className="text-sm text-muted-foreground">إصلاحات طارئة</p>
               <p className="font-display text-2xl font-bold">{emergencyCount}</p>
             </div>
           </div>
@@ -194,12 +201,12 @@ export default function Maintenance() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search maintenance records..."
+          placeholder="بحث في سجلات الصيانة..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
+          className="pr-10"
         />
       </div>
 
@@ -207,7 +214,7 @@ export default function Maintenance() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredRecords.map((record, index) => {
           const truck = getTruck(record.truckId);
-          
+
           return (
             <div
               key={record.id}
@@ -225,22 +232,22 @@ export default function Maintenance() {
                   </div>
                 </div>
                 <Badge variant="outline" className={cn("capitalize", typeStyles[record.type])}>
-                  {record.type}
+                  {typeLabels[record.type] || record.type}
                 </Badge>
               </div>
 
               <div className="mt-4 space-y-3">
                 <p className="text-sm">{record.description}</p>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Cost</span>
-                  <span className="font-bold text-primary">${record.cost.toLocaleString()}</span>
+                  <span className="text-muted-foreground">التكلفة</span>
+                  <span className="font-bold text-primary">{record.cost.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Date</span>
+                  <span className="text-muted-foreground">التاريخ</span>
                   <span className="font-medium">{format(record.date, 'MMM d, yyyy')}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Vendor</span>
+                  <span className="text-muted-foreground">المورد</span>
                   <span className="font-medium">{record.vendor}</span>
                 </div>
               </div>
