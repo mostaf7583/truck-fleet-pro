@@ -6,8 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.Date;
-
 @Entity
 @Table(name = "drivers")
 @SQLDelete(sql = "UPDATE drivers SET deleted = true WHERE id=?")
@@ -32,8 +30,7 @@ public class Driver extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String licenseNumber;
 
-    @Temporal(TemporalType.DATE)
-    private Date licenseExpiry;
+    private java.time.LocalDate licenseExpiry;
 
     private String phone;
 
@@ -47,8 +44,4 @@ public class Driver extends BaseEntity {
     @Column(nullable = false)
     private DriverStatus status;
 
-    public enum DriverStatus {
-        AVAILABLE, ON_TRIP, OFF_DUTY
-    }
 }
-8

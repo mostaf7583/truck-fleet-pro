@@ -6,8 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.Date;
-
 @Entity
 @Table(name = "maintenance_records")
 @SQLDelete(sql = "UPDATE maintenance_records SET deleted = true WHERE id=?")
@@ -35,16 +33,11 @@ public class MaintenanceRecord extends BaseEntity {
     @Column(nullable = false)
     private Double cost;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date date;
+    private java.time.LocalDateTime date;
 
-    @Temporal(TemporalType.DATE)
-    private Date nextDueDate;
+    private java.time.LocalDate nextDueDate;
 
     private String vendor;
 
-    public enum MaintenanceType {
-        ROUTINE, REPAIR, INSPECTION, EMERGENCY
-    }
 }

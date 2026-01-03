@@ -1,7 +1,7 @@
 package com.truckfleetpro.backend.application.dto;
 
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 public class DriverDTO {
@@ -9,7 +9,7 @@ public class DriverDTO {
     private String firstName;
     private String lastName;
     private String licenseNumber;
-    private Date licenseExpiry;
+    private LocalDate licenseExpiry;
     private String phone;
     private String email;
     private String assignedTruckId;

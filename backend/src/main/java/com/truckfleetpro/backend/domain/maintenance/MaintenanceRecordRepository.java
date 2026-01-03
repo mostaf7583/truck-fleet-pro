@@ -9,5 +9,5 @@ import java.util.List;
 public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord, String> {
     List<MaintenanceRecord> findByTruckId(String truckId);
 
-    List<MaintenanceRecord> findByType(MaintenanceRecord.MaintenanceType type);
+    List<MaintenanceRecord> findByType(MaintenanceType type);
 }

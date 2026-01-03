@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Wrench, Calendar, DollarSign, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Wrench, Calendar, DollarSign, AlertTriangle, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,16 @@ import { Textarea } from '@/components/ui/textarea'; // Added Import
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { maintenanceApi, trucksApi } from '@/lib/api';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const typeStyles = {
   ROUTINE: 'bg-success/10 text-success border-success/20',
@@ -95,6 +105,7 @@ export default function Maintenance() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<MaintenanceRecord | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const getTruck = (id: string) => trucks.find((t: Truck) => t.id === id);
 
@@ -137,9 +148,14 @@ export default function Maintenance() {
     if (!open) setEditingRecord(null);
   };
 
-  const handleDeleteRecord = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
-      deleteMutation.mutate(id);
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -292,9 +308,8 @@ export default function Maintenance() {
           return (
             <div
               key={record.id}
-              className="group overflow-hidden rounded-xl border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md animate-slide-up"
+              className="group relative overflow-hidden rounded-xl border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md animate-slide-up"
               style={{ animationDelay: `${index * 50}ms` }}
-              onClick={() => handleEditRecord(record)} // Added onClick for editing
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start gap-4">

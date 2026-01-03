@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.truckfleetpro.backend.domain.financial.ExpenseType;
+
 @Service
 @RequiredArgsConstructor
 public class TripExpenseService {
@@ -41,7 +43,7 @@ public class TripExpenseService {
     private TripExpense mapToEntity(TripExpenseDTO dto) {
         return TripExpense.builder()
                 .tripId(dto.getTripId())
-                .type(TripExpense.ExpenseType.valueOf(dto.getType().toUpperCase()))
+                .type(ExpenseType.valueOf(dto.getType().toUpperCase()))
                 .description(dto.getDescription())
                 .amount(dto.getAmount())
                 .date(dto.getDate())

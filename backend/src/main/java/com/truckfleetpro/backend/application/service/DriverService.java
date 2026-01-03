@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.truckfleetpro.backend.domain.driver.DriverStatus;
+
 @Service
 @RequiredArgsConstructor
 public class DriverService {
@@ -32,7 +34,7 @@ public class DriverService {
     public DriverDTO createDriver(DriverDTO dto) {
         Driver driver = mapToEntity(dto);
         if (driver.getStatus() == null) {
-            driver.setStatus(Driver.DriverStatus.AVAILABLE);
+            driver.setStatus(DriverStatus.AVAILABLE);
         }
         return mapToDTO(driverRepository.save(driver));
     }
@@ -51,7 +53,7 @@ public class DriverService {
         driver.setAssignedTruckId(dto.getAssignedTruckId());
 
         if (dto.getStatus() != null) {
-            driver.setStatus(Driver.DriverStatus.valueOf(dto.getStatus().toUpperCase()));
+            driver.setStatus(DriverStatus.valueOf(dto.getStatus().toUpperCase()));
         }
 
         return mapToDTO(driverRepository.save(driver));
@@ -87,8 +89,8 @@ public class DriverService {
                 .phone(dto.getPhone())
                 .email(dto.getEmail())
                 .assignedTruckId(dto.getAssignedTruckId())
-                .status(dto.getStatus() != null ? Driver.DriverStatus.valueOf(dto.getStatus().toUpperCase())
-                        : Driver.DriverStatus.AVAILABLE)
+                .status(dto.getStatus() != null ? DriverStatus.valueOf(dto.getStatus().toUpperCase())
+                        : DriverStatus.AVAILABLE)
                 .build();
     }
 }

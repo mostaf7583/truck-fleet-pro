@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.truckfleetpro.backend.domain.financial.PaymentStatus;
+
 @Service
 @RequiredArgsConstructor
 public class TripIncomeService {
@@ -22,7 +24,7 @@ public class TripIncomeService {
         TripIncome income = mapToEntity(dto);
         // Default to PENDING if not set
         if (income.getPaymentStatus() == null) {
-            income.setPaymentStatus(TripIncome.PaymentStatus.PENDING);
+            income.setPaymentStatus(PaymentStatus.PENDING);
         }
         return mapToDTO(repository.save(income));
     }
@@ -33,7 +35,7 @@ public class TripIncomeService {
 
     public TripIncomeDTO updatePaymentStatus(String id, String status) {
         TripIncome income = repository.findById(id).orElseThrow(() -> new RuntimeException("Income not found"));
-        income.setPaymentStatus(TripIncome.PaymentStatus.valueOf(status.toUpperCase()));
+        income.setPaymentStatus(PaymentStatus.valueOf(status.toUpperCase()));
         return mapToDTO(repository.save(income));
     }
 
@@ -55,8 +57,8 @@ public class TripIncomeService {
                 .clientName(dto.getClientName())
                 .amount(dto.getAmount())
                 .paymentStatus(dto.getPaymentStatus() != null
-                        ? TripIncome.PaymentStatus.valueOf(dto.getPaymentStatus().toUpperCase())
-                        : TripIncome.PaymentStatus.PENDING)
+                        ? PaymentStatus.valueOf(dto.getPaymentStatus().toUpperCase())
+                        : PaymentStatus.PENDING)
                 .dueDate(dto.getDueDate())
                 .paidDate(dto.getPaidDate())
                 .build();

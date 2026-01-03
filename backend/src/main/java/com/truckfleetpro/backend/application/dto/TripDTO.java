@@ -1,15 +1,15 @@
 package com.truckfleetpro.backend.application.dto;
 
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class TripDTO {
     private String id;
     private String origin;
     private String destination;
-    private Date startDate;
-    private Date endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String driverId;
     private String truckId;
     private String status;

@@ -1,7 +1,7 @@
 package com.truckfleetpro.backend.application.dto;
 
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class FuelRecordDTO {
@@ -10,7 +10,7 @@ public class FuelRecordDTO {
     private String tripId;
     private Double amount;
     private Double cost;
-    private Date date;
+    private LocalDateTime date;
     private String station;
     private Double odometerReading;
 }

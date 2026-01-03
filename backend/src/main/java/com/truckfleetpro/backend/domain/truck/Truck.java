@@ -38,7 +38,4 @@ public class Truck extends BaseEntity {
 
     private Double mileage;
 
-    public enum TruckStatus {
-        ACTIVE, MAINTENANCE, INACTIVE
-    }
 }

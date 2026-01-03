@@ -6,8 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.Date;
-
 @Entity
 @Table(name = "fuel_records")
 @SQLDelete(sql = "UPDATE fuel_records SET deleted = true WHERE id=?")
@@ -34,9 +32,8 @@ public class FuelRecord extends BaseEntity {
     @Column(nullable = false)
     private Double cost;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date date;
+    private java.time.LocalDateTime date;
 
     private String station;
     private Double odometerReading;

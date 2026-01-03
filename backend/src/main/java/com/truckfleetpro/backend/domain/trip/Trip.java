@@ -6,8 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.Date;
-
 @Entity
 @Table(name = "trips")
 @SQLDelete(sql = "UPDATE trips SET deleted = true WHERE id=?")
@@ -29,11 +27,9 @@ public class Trip extends BaseEntity {
     @Column(nullable = false)
     private String destination;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startDate;
+    private java.time.LocalDateTime startDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date endDate;
+    private java.time.LocalDateTime endDate;
 
     private String driverId;
     private String truckId;
@@ -45,7 +41,4 @@ public class Trip extends BaseEntity {
     private Double distance;
     private String clientName;
 
-    public enum TripStatus {
-        SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
-    }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Fuel, Calendar, DollarSign } from 'lucide-react';
+import { Plus, Search, Fuel, Calendar, DollarSign, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FuelRecord, Truck } from '@/types';
@@ -20,6 +20,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fuelApi, trucksApi } from '@/lib/api';
@@ -79,6 +89,7 @@ export default function FuelRecords() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<FuelRecord | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const getTruck = (id: string) => trucks.find((t: Truck) => t.id === id);
 
@@ -120,9 +131,14 @@ export default function FuelRecords() {
     if (!open) setEditingRecord(null);
   };
 
-  const handleDeleteRecord = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
-      deleteMutation.mutate(id);
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -305,8 +321,8 @@ export default function FuelRecords() {
                       {record.odometerReading.toLocaleString()} km
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDeleteRecord(record.id); }}>
-                        حذف
+                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDeleteClick(record.id); }}>
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </td>
                   </tr>
@@ -316,6 +332,26 @@ export default function FuelRecords() {
           </table>
         </div>
       </div>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>هل أنت متأكد من الحذف؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              لا يمكن التراجع عن هذا الإجراء. سيتم حذف سجل الوقود نهائياً من النظام.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmDelete}
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

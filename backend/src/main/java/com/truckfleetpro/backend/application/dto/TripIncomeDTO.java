@@ -1,7 +1,7 @@
 package com.truckfleetpro.backend.application.dto;
 
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 public class TripIncomeDTO {
@@ -10,6 +10,6 @@ public class TripIncomeDTO {
     private String clientName;
     private Double amount;
     private String paymentStatus;
-    private Date dueDate;
-    private Date paidDate;
+    private LocalDate dueDate;
+    private LocalDate paidDate;
 }

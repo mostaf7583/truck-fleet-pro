@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.truckfleetpro.backend.domain.trip.TripStatus;
+
 @Service
 @RequiredArgsConstructor
 public class TripService {
@@ -32,7 +34,7 @@ public class TripService {
     public TripDTO createTrip(TripDTO dto) {
         Trip trip = mapToEntity(dto);
         if (trip.getStatus() == null) {
-            trip.setStatus(Trip.TripStatus.SCHEDULED);
+            trip.setStatus(TripStatus.SCHEDULED);
         }
         return mapToDTO(tripRepository.save(trip));
     }
@@ -52,7 +54,7 @@ public class TripService {
         trip.setClientName(dto.getClientName());
 
         if (dto.getStatus() != null) {
-            trip.setStatus(Trip.TripStatus.valueOf(dto.getStatus().toUpperCase()));
+            trip.setStatus(TripStatus.valueOf(dto.getStatus().toUpperCase()));
         }
 
         return mapToDTO(tripRepository.save(trip));
@@ -67,7 +69,7 @@ public class TripService {
     public TripDTO updateStatus(String id, String status) {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
-        trip.setStatus(Trip.TripStatus.valueOf(status.toUpperCase()));
+        trip.setStatus(TripStatus.valueOf(status.toUpperCase()));
         return mapToDTO(tripRepository.save(trip));
     }
 
@@ -98,8 +100,8 @@ public class TripService {
                 .truckId(dto.getTruckId())
                 .distance(dto.getDistance())
                 .clientName(dto.getClientName())
-                .status(dto.getStatus() != null ? Trip.TripStatus.valueOf(dto.getStatus().toUpperCase())
-                        : Trip.TripStatus.SCHEDULED)
+                .status(dto.getStatus() != null ? TripStatus.valueOf(dto.getStatus().toUpperCase())
+                        : TripStatus.SCHEDULED)
                 .build();
     }
 }

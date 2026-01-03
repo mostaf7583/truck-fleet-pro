@@ -4,12 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @MappedSuperclass
 @Getter
@@ -17,24 +13,22 @@ import java.util.Date;
 public abstract class BaseEntity {
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    private java.time.LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+    private java.time.LocalDateTime updatedAt;
 
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = new Date();
+        createdAt = java.time.LocalDateTime.now();
         deleted = false;
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = new Date();
+        updatedAt = java.time.LocalDateTime.now();
     }
 }

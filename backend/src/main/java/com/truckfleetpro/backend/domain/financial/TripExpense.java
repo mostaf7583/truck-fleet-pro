@@ -6,8 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.Date;
-
 @Entity
 @Table(name = "trip_expenses")
 @SQLDelete(sql = "UPDATE trip_expenses SET deleted = true WHERE id=?")
@@ -35,11 +33,7 @@ public class TripExpense extends BaseEntity {
     @Column(nullable = false)
     private Double amount;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date date;
+    private java.time.LocalDateTime date;
 
-    public enum ExpenseType {
-        FUEL, TOLL, REPAIR, FOOD, LODGING, OTHER
-    }
 }

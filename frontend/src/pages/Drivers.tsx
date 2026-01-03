@@ -20,6 +20,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -92,6 +102,7 @@ export default function Drivers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const getTruck = (id?: string) => trucks.find((t: Truck) => t.id === id);
 
@@ -132,9 +143,14 @@ export default function Drivers() {
     if (!open) setEditingDriver(null);
   };
 
-  const handleDeleteDriver = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا السائق؟')) {
-      deleteMutation.mutate(id);
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -266,8 +282,8 @@ export default function Drivers() {
                       <Edit className="h-4 w-4" />
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="text-destructive flex items-center gap-2 justify-end"
-                      onClick={() => handleDeleteDriver(driver.id)}
+                      className="text-destructive flex items-center gap-2 justify-end focus:text-destructive"
+                      onClick={() => handleDeleteClick(driver.id)}
                     >
                       <span>حذف</span>
                       <Trash2 className="h-4 w-4" />
@@ -317,6 +333,23 @@ export default function Drivers() {
           <p className="text-sm text-muted-foreground">جرب تغيير البحث</p>
         </div>
       )}
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>هل أنت متأكد من الحذف؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              لا يمكن التراجع عن هذا الإجراء. سيتم حذف بيانات السائق نهائياً من النظام.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

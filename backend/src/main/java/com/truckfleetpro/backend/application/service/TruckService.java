@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.truckfleetpro.backend.domain.truck.TruckStatus;
+
 @Service
 @RequiredArgsConstructor
 public class TruckService {
@@ -31,7 +33,7 @@ public class TruckService {
     @Transactional
     public TruckDTO createTruck(TruckDTO dto) {
         Truck truck = mapToEntity(dto);
-        truck.setStatus(Truck.TruckStatus.ACTIVE); // Default
+        truck.setStatus(TruckStatus.ACTIVE); // Default
         return mapToDTO(truckRepository.save(truck));
     }
 
@@ -46,7 +48,7 @@ public class TruckService {
         truck.setYear(dto.getYear());
         truck.setMileage(dto.getMileage());
         if (dto.getStatus() != null) {
-            truck.setStatus(Truck.TruckStatus.valueOf(dto.getStatus().toUpperCase()));
+            truck.setStatus(TruckStatus.valueOf(dto.getStatus().toUpperCase()));
         }
 
         return mapToDTO(truckRepository.save(truck));
@@ -76,8 +78,8 @@ public class TruckService {
                 .capacity(dto.getCapacity())
                 .year(dto.getYear())
                 .mileage(dto.getMileage())
-                .status(dto.getStatus() != null ? Truck.TruckStatus.valueOf(dto.getStatus().toUpperCase())
-                        : Truck.TruckStatus.ACTIVE)
+                .status(dto.getStatus() != null ? TruckStatus.valueOf(dto.getStatus().toUpperCase())
+                        : TruckStatus.ACTIVE)
                 .build();
     }
 }

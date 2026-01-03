@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.truckfleetpro.backend.domain.maintenance.MaintenanceType;
+
 @Service
 @RequiredArgsConstructor
 public class MaintenanceRecordService {
@@ -43,7 +45,7 @@ public class MaintenanceRecordService {
     private MaintenanceRecord mapToEntity(MaintenanceRecordDTO dto) {
         return MaintenanceRecord.builder()
                 .truckId(dto.getTruckId())
-                .type(MaintenanceRecord.MaintenanceType.valueOf(dto.getType().toUpperCase()))
+                .type(MaintenanceType.valueOf(dto.getType().toUpperCase()))
                 .description(dto.getDescription())
                 .cost(dto.getCost())
                 .date(dto.getDate())

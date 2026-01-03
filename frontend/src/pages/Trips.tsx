@@ -1,9 +1,11 @@
+
 import { useState } from 'react';
-import { Plus, Search, Filter, Calendar, MapPin, Truck, User, MoreVertical, Trash2, DollarSign } from 'lucide-react';
+import { Plus, Search, MapPin, Calendar, Clock, Truck as TruckIcon, User, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Trip, Driver, Truck, TripStatus } from '@/types/index';
+import { format } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -13,22 +15,35 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tripsApi, driversApi, trucksApi } from '@/lib/api';
-import { Trip, Driver, Truck as TruckType } from '@/types';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
-import { TripFinancials } from '@/components/TripFinancials';
 
-const statusStyles = {
-  SCHEDULED: 'bg-primary/10 text-primary border-primary/20',
-  IN_PROGRESS: 'bg-info/10 text-info border-info/20',
-  COMPLETED: 'bg-success/10 text-success border-success/20',
-  CANCELLED: 'bg-destructive/10 text-destructive border-destructive/20',
+const statusColors: Record<TripStatus, 'default' | 'secondary' | 'outline' | 'destructive' | 'success' | 'warning'> = {
+  SCHEDULED: 'secondary',
+  IN_PROGRESS: 'default',
+  COMPLETED: 'success',
+  CANCELLED: 'destructive',
 };
 
-const statusLabels: Record<string, string> = {
+const statusLabels: Record<TripStatus, string> = {
   SCHEDULED: 'مجدولة',
   IN_PROGRESS: 'جارية',
   COMPLETED: 'مكتملة',
@@ -59,9 +74,10 @@ export default function Trips() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trips'] });
       setIsAddDialogOpen(false);
+      setEditingTrip(null);
       toast({
-        title: 'تم جدولة الرحلة',
-        description: 'تم إضافة الرحلة الجديدة بنجاح.',
+        title: 'تم إنشاء الرحلة',
+        description: 'تم إضافة رحلة جديدة بنجاح.',
       });
     },
   });
@@ -92,24 +108,18 @@ export default function Trips() {
   });
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<Trip['status'] | 'ALL'>('ALL');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
-  const [financialsTripId, setFinancialsTripId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const getDriver = (id: string) => drivers.find((d: Driver) => d.id === id);
-  const getTruck = (id: string) => trucks.find((t: TruckType) => t.id === id);
+  const getTruck = (id: string) => trucks.find((t: Truck) => t.id === id);
 
-  const filteredTrips = trips.filter((trip: Trip) => {
-    const matchesSearch =
-      trip.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.clientName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === 'ALL' || trip.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
-
-  const activeTripsCount = trips.filter((t: Trip) => t.status === 'IN_PROGRESS').length;
+  const filteredTrips = trips.filter((trip: Trip) =>
+    trip.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    trip.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    trip.clientName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,13 +127,13 @@ export default function Trips() {
     const tripData = {
       origin: formData.get('origin') as string,
       destination: formData.get('destination') as string,
-      startDate: new Date(formData.get('startDate') as string),
-      endDate: formData.get('endDate') ? new Date(formData.get('endDate') as string) : undefined,
+      clientName: formData.get('clientName') as string,
       driverId: formData.get('driverId') as string,
       truckId: formData.get('truckId') as string,
-      clientName: formData.get('clientName') as string,
+      startDate: new Date(formData.get('startDate') as string),
+      endDate: formData.get('endDate') ? new Date(formData.get('endDate') as string) : undefined,
+      status: formData.get('status') as TripStatus,
       distance: Number(formData.get('distance')),
-      status: editingTrip ? (formData.get('status') as Trip['status']) : 'SCHEDULED', // Default to SCHEDULED for new trips
     };
 
     if (editingTrip) {
@@ -138,15 +148,20 @@ export default function Trips() {
     setIsAddDialogOpen(true);
   };
 
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
+    }
+  };
+
   const handleDialogOpenChange = (open: boolean) => {
     setIsAddDialogOpen(open);
     if (!open) setEditingTrip(null);
-  };
-
-  const handleDeleteTrip = (id: string) => {
-    if (confirm('هل أنت متأكد من حذف هذه الرحلة؟')) {
-      deleteMutation.mutate(id);
-    }
   };
 
   if (isLoadingTrips) return <div>تحميل...</div>;
@@ -157,20 +172,20 @@ export default function Trips() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">الرحلات</h1>
-          <p className="text-muted-foreground">إدارة وجدولة رحلات الأسطول</p>
+          <p className="text-muted-foreground">إدارة وجدولة الرحلات</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={handleDialogOpenChange}>
           <DialogTrigger asChild>
             <Button variant="gradient" className="gap-2">
               <Plus className="h-4 w-4" />
-              جدولة رحلة
+              رحلة جديدة
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>{editingTrip ? 'تعديل الرحلة' : 'جدولة رحلة جديدة'}</DialogTitle>
+              <DialogTitle>{editingTrip ? 'تعديل الرحلة' : 'رحلة جديدة'}</DialogTitle>
               <DialogDescription>
-                {editingTrip ? 'تحديث تفاصيل الرحلة.' : 'أدخل تفاصيل الرحلة الجديدة.'}
+                {editingTrip ? 'تحديث بيانات الرحلة الحالية.' : 'إدخال بيانات رحلة جديدة.'}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -184,26 +199,9 @@ export default function Trips() {
                   <Input id="destination" name="destination" defaultValue={editingTrip?.destination} placeholder="جدة" required />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">تاريخ البدء</Label>
-                  <Input
-                    id="startDate"
-                    name="startDate"
-                    type="date"
-                    defaultValue={editingTrip?.startDate ? format(new Date(editingTrip.startDate), 'yyyy-MM-dd') : ''}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">تاريخ الوصول المتوقع</Label>
-                  <Input
-                    id="endDate"
-                    name="endDate"
-                    type="date"
-                    defaultValue={editingTrip?.endDate ? format(new Date(editingTrip.endDate), 'yyyy-MM-dd') : ''}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientName">اسم العميل</Label>
+                <Input id="clientName" name="clientName" defaultValue={editingTrip?.clientName} placeholder="شركة النقل السريع" required />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -228,47 +226,63 @@ export default function Trips() {
                       <SelectValue placeholder="اختر شاحنة" />
                     </SelectTrigger>
                     <SelectContent>
-                      {trucks.filter((t: TruckType) => t.status === 'ACTIVE' || t.id === editingTrip?.truckId).map((truck: TruckType) => (
+                      {trucks.filter((t: Truck) => t.status === 'ACTIVE' || t.id === editingTrip?.truckId).map((truck: Truck) => (
                         <SelectItem key={truck.id} value={truck.id}>
-                          {truck.plateNumber} ({truck.model})
+                          {truck.plateNumber} - {truck.model}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="clientName">العميل</Label>
-                <Input id="clientName" name="clientName" defaultValue={editingTrip?.clientName} placeholder="شركة أرامكو" required />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">تاريخ البدء</Label>
+                  <Input
+                    id="startDate"
+                    name="startDate"
+                    type="datetime-local"
+                    defaultValue={editingTrip?.startDate ? format(new Date(editingTrip.startDate), "yyyy-MM-dd'T'HH:mm") : ''}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">تاريخ الوصول المتوقع</Label>
+                  <Input
+                    id="endDate"
+                    name="endDate"
+                    type="datetime-local"
+                    defaultValue={editingTrip?.endDate ? format(new Date(editingTrip.endDate), "yyyy-MM-dd'T'HH:mm") : ''}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="distance">المسافة (كم)</Label>
-                <Input id="distance" name="distance" type="number" defaultValue={editingTrip?.distance} placeholder="950" required />
-              </div>
-
-              {editingTrip && (
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">الحالة</Label>
-                  <Select name="status" defaultValue={editingTrip.status}>
+                  <Select name="status" defaultValue={editingTrip?.status || 'SCHEDULED'} required>
                     <SelectTrigger>
-                      <SelectValue placeholder="اختر الحالة" />
+                      <SelectValue placeholder="اختار الحالة" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SCHEDULED">مجدولة</SelectItem>
-                      <SelectItem value="IN_PROGRESS">جارية</SelectItem>
-                      <SelectItem value="COMPLETED">مكتملة</SelectItem>
-                      <SelectItem value="CANCELLED">ملغاة</SelectItem>
+                      {Object.entries(statusLabels).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>
+                          {label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
-              )}
-
+                <div className="space-y-2">
+                  <Label htmlFor="distance">المسافة (كم)</Label>
+                  <Input id="distance" name="distance" type="number" defaultValue={editingTrip?.distance} placeholder="850" required />
+                </div>
+              </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => handleDialogOpenChange(false)}>
                   إلغاء
                 </Button>
                 <Button type="submit" variant="gradient">
-                  {editingTrip ? 'حفظ التغييرات' : 'جدولة الرحلة'}
+                  {editingTrip ? 'حفظ التغييرات' : 'إضافة الرحلة'}
                 </Button>
               </div>
             </form>
@@ -276,23 +290,19 @@ export default function Trips() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {['ALL', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED'].map((status) => (
-          <Button
-            key={status}
-            variant={filterStatus === status ? 'default' : 'outline'}
-            onClick={() => setFilterStatus(status as Trip['status'] | 'ALL')}
-            className="whitespace-nowrap"
-          >
-            {status === 'ALL' ? 'الكل' : statusLabels[status]}
-          </Button>
-        ))}
+      {/* Search */}
+      <div className="relative max-w-md">
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="بحث بالمدينة أو العميل..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pr-10"
+        />
       </div>
 
-
-      {/* Trips List */}
-      <div className="space-y-4">
+      {/* Trips Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredTrips.map((trip: Trip, index: number) => {
           const driver = getDriver(trip.driverId);
           const truck = getTruck(trip.truckId);
@@ -300,118 +310,86 @@ export default function Trips() {
           return (
             <div
               key={trip.id}
-              className="group relative overflow-hidden rounded-xl border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md animate-slide-up"
+              className="group relative overflow-hidden rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md animate-slide-up"
               style={{ animationDelay: `${index * 50}ms` }}
-              onClick={() => handleEditTrip(trip)}
             >
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                {/* Trip Info */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className={cn("font-normal", statusStyles[trip.status])}>
-                      {statusLabels[trip.status]}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {trip.distance} كم
-                    </span>
+              <div className="mb-4 flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant={statusColors[trip.status]}>
+                    {statusLabels[trip.status]}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">{format(new Date(trip.startDate), 'MMM d')}</span>
+                </div>
+                <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => handleEditTrip(trip)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteClick(trip.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                    <MapPin className="h-4 w-4 text-primary" />
                   </div>
-
-                  <div className="flex items-center gap-8">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <MapPin className="h-4 w-4" />
-                        <span className="text-xs">من</span>
-                      </div>
-                      <p className="font-semibold">{trip.origin}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(trip.startDate), 'MMM d, h:mm a')}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-1">
-                      <div className="h-[2px] w-16 bg-border" />
-                      <Truck className="h-4 w-4 text-muted-foreground/50" />
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <MapPin className="h-4 w-4" />
-                        <span className="text-xs">إلى</span>
-                      </div>
-                      <p className="font-semibold">{trip.destination}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {trip.endDate ? format(new Date(trip.endDate), 'MMM d, h:mm a') : '-'}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="font-medium">{trip.origin}</p>
+                    <p className="text-xs text-muted-foreground">الانطلاق</p>
                   </div>
                 </div>
-
-                {/* Resources */}
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <User className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{driver?.firstName} {driver?.lastName}</p>
-                      <p className="text-xs text-muted-foreground">سائق</p>
-                    </div>
+                <div className="flex flex-1 items-center justify-center px-4">
+                  <div className="h-px w-full border-t border-dashed border-border" />
+                </div>
+                <div className="flex items-center gap-2 text-left">
+                  <div className="text-right">
+                    <p className="font-medium">{trip.destination}</p>
+                    <p className="text-xs text-muted-foreground">الوصول</p>
                   </div>
-
-                  <div className="h-8 w-[1px] bg-border" />
-
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
-                      <Truck className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{truck?.plateNumber}</p>
-                      <p className="text-xs text-muted-foreground">{truck?.model}</p>
-                    </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                    <MapPin className="h-4 w-4 text-primary" />
                   </div>
+                </div>
+              </div>
 
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFinancialsTripId(trip.id);
-                      }}
-                      title="المالية"
-                    >
-                      <DollarSign className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTrip(trip.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+              <div className="mt-auto space-y-3 border-t pt-4">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <User className="h-4 w-4" />
+                    <span>{driver?.firstName} {driver?.lastName}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <TruckIcon className="h-4 w-4" />
+                    <span>{truck?.plateNumber}</span>
                   </div>
                 </div>
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
-      <TripFinancials
-        tripId={financialsTripId}
-        open={!!financialsTripId}
-        onOpenChange={(open) => !open && setFinancialsTripId(null)}
-      />
-      {filteredTrips.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-12">
-          <p className="text-lg font-medium text-muted-foreground">لا يوجد رحلات</p>
-          <p className="text-sm text-muted-foreground">حاول تغيير البحث أو الفلاتر</p>
-        </div>
-      )}
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>هل أنت متأكد من الحذف؟</AlertDialogTitle>
+            <AlertDialogDescription>
+              لا يمكن التراجع عن هذا الإجراء. سيتم حذف الرحلة نهائياً من النظام.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmDelete}
+            >
+              حذف
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
