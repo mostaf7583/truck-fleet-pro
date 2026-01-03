@@ -1,73 +1,110 @@
-# Welcome to your Lovable project
+# Truck Fleet Pro
 
-## Project info
+**Truck Fleet Pro** is a comprehensive fleet management solution designed to streamline operations for logistics and transportation businesses. This modern dashboard provides real-time visibility into your fleet, drivers, trips, fuel consumption, and maintenance schedules.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Key Features
 
-## How can I edit this code?
+*   **📊 Interactive Dashboard**
+    *   Get a high-level overview of total fleet status, active trips, and recent alerts.
+    *   Monitor key performance indicators (KPIs) like total distance, fuel costs, and fleet availability.
 
-There are several ways of editing your application.
+*   **🚛 Truck Management**
+    *   Detailed registry of all vehicles in the fleet.
+    *   Track status (Active, Maintenance, In Transit, Idle).
+    *   Monitor usage stats and vehicle specifications.
 
-**Use Lovable**
+*   **bust_in_silhouette Driver Management**
+    *   Manage driver profiles, licenses, and certifications.
+    *   Track driver assignments and performance history.
+    *   Monitor license expiration dates.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+*   **📍 Trip Management**
+    *   Log and track trips with start/end locations and dates.
+    *   Monitor trip status (Scheduled, En Route, Completed).
+    *   Assign drivers and trucks to specific routes.
 
-Changes made via Lovable will be committed automatically to this repo.
+*   **⛽ Fuel Logic & Tracking**
+    *   Record fuel fills and associated costs.
+    *   Analyze fuel efficiency (MPG/L per 100km).
+    *   Track fuel expenses by vehicle or time period.
 
-**Use your preferred IDE**
+*   **🔧 Maintenance System**
+    *   Schedule preventive maintenance and repairs.
+    *   Track maintenance history and costs.
+    *   Receive alerts for upcoming service needs.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+*   **📈 Reports & Analytics**
+    *   Visual data representation using interactive charts (Recharts).
+    *   Analyze costs, fleet utilization, and operational efficiency over time.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Technology Stack
 
-Follow these steps:
+This project is built using a modern, robust frontend stack ensuring performance and maintainability:
+
+*   **Framework**: [React](https://react.dev/) with [TypeScript](https://www.typescriptlang.org/)
+*   **Build Tool**: [Vite](https://vitejs.dev/) for fast development and bundling.
+*   **Styling**: 
+    *   [Tailwind CSS](https://tailwindcss.com/) for utility-first styling.
+    *   [shadcn/ui](https://ui.shadcn.com/) for beautiful, accessible UI components.
+    *   [Lucide React](https://lucide.dev/) for consistent iconography.
+*   **State Management & Data Fetching**: [TanStack Query (React Query)](https://tanstack.com/query/latest) for efficient server state management.
+*   **Routing**: [React Router](https://reactrouter.com/) for client-side navigation.
+*   **Charts**: [Recharts](https://recharts.org/) for data visualization.
+*   **Forms**: [React Hook Form](https://react-hook-form.com/) with [Zod](https://zod.dev/) for schema validation.
+
+## 🏁 Getting Started
+
+Follow these steps to set up the project locally:
+
+### Prerequisites
+
+Ensure you have Node.js (v18 or higher) installed on your machine.
+
+### Installation
+
+1.  **Clone the repository**
+    ```sh
+    git clone <YOUR_GIT_URL>
+    cd truck-fleet-pro
+    ```
+
+2.  **Install dependencies**
+    ```sh
+    npm install
+    # or
+    yarn install
+    # or
+    bun install
+    ```
+
+3.  **Start the development server**
+    ```sh
+    npm run dev
+    ```
+
+    The application will actiavte at `http://localhost:8080` (or similar).
+
+### Building for Production
+
+To create a production-ready build:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.npm
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+## 📂 Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── components/     # Reusable UI components & layout elements
+├── data/          # Mock data and static content
+├── hooks/         # Custom React hooks
+├── lib/           # Utility functions (shadcn utils, etc.)
+├── pages/         # Page components (routed views)
+├── types/         # TypeScript definitions
+└── App.tsx        # Main application entry & routing
+```
 
-**Use GitHub Codespaces**
+## 📄 License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is private and proprietary.
