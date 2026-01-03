@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/drivers")
 @RequiredArgsConstructor
@@ -16,8 +14,11 @@ public class DriverController {
     private final DriverService driverService;
 
     @GetMapping
-    public ResponseEntity<List<DriverDTO>> getAllDrivers() {
-        return ResponseEntity.ok(driverService.getAllDrivers());
+    public ResponseEntity<org.springframework.data.domain.Page<DriverDTO>> getAllDrivers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity
+                .ok(driverService.getAllDrivers(org.springframework.data.domain.PageRequest.of(page, size)));
     }
 
     @GetMapping("/{id}")

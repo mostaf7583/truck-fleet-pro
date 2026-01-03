@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/maintenance-records")
 @RequiredArgsConstructor
@@ -16,8 +14,10 @@ public class MaintenanceRecordController {
     private final MaintenanceRecordService service;
 
     @GetMapping
-    public ResponseEntity<List<MaintenanceRecordDTO>> getAll() {
-        return ResponseEntity.ok(service.getAllRecords());
+    public ResponseEntity<org.springframework.data.domain.Page<MaintenanceRecordDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(service.getAllRecords(org.springframework.data.domain.PageRequest.of(page, size)));
     }
 
     @PostMapping

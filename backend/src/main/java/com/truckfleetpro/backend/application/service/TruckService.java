@@ -18,10 +18,10 @@ public class TruckService {
 
     private final TruckRepository truckRepository;
 
-    public List<TruckDTO> getAllTrucks() {
-        return truckRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public org.springframework.data.domain.Page<TruckDTO> getAllTrucks(
+            org.springframework.data.domain.Pageable pageable) {
+        return truckRepository.findAll(pageable)
+                .map(this::mapToDTO);
     }
 
     public TruckDTO getTruckById(String id) {

@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/trip-incomes")
 @RequiredArgsConstructor
@@ -16,8 +14,10 @@ public class TripIncomeController {
     private final TripIncomeService service;
 
     @GetMapping
-    public ResponseEntity<List<TripIncomeDTO>> getAll() {
-        return ResponseEntity.ok(service.getAllIncomes());
+    public ResponseEntity<org.springframework.data.domain.Page<TripIncomeDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(service.getAllIncomes(org.springframework.data.domain.PageRequest.of(page, size)));
     }
 
     @PostMapping

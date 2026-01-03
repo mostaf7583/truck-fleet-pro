@@ -18,10 +18,10 @@ public class DriverService {
 
     private final DriverRepository driverRepository;
 
-    public List<DriverDTO> getAllDrivers() {
-        return driverRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public org.springframework.data.domain.Page<DriverDTO> getAllDrivers(
+            org.springframework.data.domain.Pageable pageable) {
+        return driverRepository.findAll(pageable)
+                .map(this::mapToDTO);
     }
 
     public DriverDTO getDriverById(String id) {

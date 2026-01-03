@@ -16,8 +16,10 @@ public class TruckController {
     private final TruckService truckService;
 
     @GetMapping
-    public ResponseEntity<List<TruckDTO>> getAllTrucks() {
-        return ResponseEntity.ok(truckService.getAllTrucks());
+    public ResponseEntity<org.springframework.data.domain.Page<TruckDTO>> getAllTrucks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(truckService.getAllTrucks(org.springframework.data.domain.PageRequest.of(page, size)));
     }
 
     @GetMapping("/{id}")

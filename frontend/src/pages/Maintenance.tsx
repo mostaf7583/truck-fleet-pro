@@ -51,19 +51,27 @@ const typeLabels: Record<string, string> = {
   EMERGENCY: 'طارئة',
 };
 
+import { PaginationControls } from '@/components/common/PaginationControls';
+
 export default function Maintenance() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [page, setPage] = useState(0);
+  const pageSize = 10;
 
-  const { data: records = [], isLoading: isLoadingRecords } = useQuery({
-    queryKey: ['maintenanceRecords'],
-    queryFn: maintenanceApi.getAll,
+  const { data: paginatedData, isLoading: isLoadingRecords } = useQuery({
+    queryKey: ['maintenanceRecords', page],
+    queryFn: () => maintenanceApi.getAll(page, pageSize),
   });
 
-  const { data: trucks = [] } = useQuery({
-    queryKey: ['trucks'],
-    queryFn: trucksApi.getAll,
+  const records = paginatedData?.content || [];
+
+  const { data: trucksData } = useQuery({
+    queryKey: ['trucks', 'all'],
+    queryFn: () => trucksApi.getAll(0, 100),
   });
+
+  const trucks = trucksData?.content || [];
 
   const createMutation = useMutation({
     mutationFn: maintenanceApi.create,
@@ -348,6 +356,17 @@ export default function Maintenance() {
           );
         })}
       </div>
+
+      {/* Pagination Controls */}
+      {paginatedData && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={paginatedData.totalPages}
+          onPageChange={setPage}
+          isFirst={paginatedData.first}
+          isLast={paginatedData.last}
+        />
+      )}
     </div>
   );
 }

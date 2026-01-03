@@ -5,7 +5,6 @@ import com.truckfleetpro.backend.domain.fuel.FuelRecord;
 import com.truckfleetpro.backend.domain.fuel.FuelRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,8 +14,10 @@ public class FuelRecordService {
 
     private final FuelRecordRepository repository;
 
-    public List<FuelRecordDTO> getAllRecords() {
-        return repository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+    public org.springframework.data.domain.Page<FuelRecordDTO> getAllRecords(
+            org.springframework.data.domain.Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(this::mapToDTO);
     }
 
     public FuelRecordDTO createRecord(FuelRecordDTO dto) {

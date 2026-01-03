@@ -5,8 +5,6 @@ import com.truckfleetpro.backend.domain.financial.TripIncome;
 import com.truckfleetpro.backend.domain.financial.TripIncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.truckfleetpro.backend.domain.financial.PaymentStatus;
 
@@ -16,8 +14,10 @@ public class TripIncomeService {
 
     private final TripIncomeRepository repository;
 
-    public List<TripIncomeDTO> getAllIncomes() {
-        return repository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+    public org.springframework.data.domain.Page<TripIncomeDTO> getAllIncomes(
+            org.springframework.data.domain.Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(this::mapToDTO);
     }
 
     public TripIncomeDTO createIncome(TripIncomeDTO dto) {

@@ -5,8 +5,6 @@ import com.truckfleetpro.backend.domain.maintenance.MaintenanceRecord;
 import com.truckfleetpro.backend.domain.maintenance.MaintenanceRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.truckfleetpro.backend.domain.maintenance.MaintenanceType;
 
@@ -16,8 +14,10 @@ public class MaintenanceRecordService {
 
     private final MaintenanceRecordRepository repository;
 
-    public List<MaintenanceRecordDTO> getAllRecords() {
-        return repository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+    public org.springframework.data.domain.Page<MaintenanceRecordDTO> getAllRecords(
+            org.springframework.data.domain.Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(this::mapToDTO);
     }
 
     public MaintenanceRecordDTO createRecord(MaintenanceRecordDTO dto) {

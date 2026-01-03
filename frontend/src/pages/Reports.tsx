@@ -19,35 +19,41 @@ export default function Reports() {
   const { toast } = useToast();
 
   // Fetch all necessary data
-  const { data: trucks = [] } = useQuery<TruckType[]>({
-    queryKey: ['trucks'],
-    queryFn: trucksApi.getAll,
+  const { data: trucksData } = useQuery({
+    queryKey: ['trucks', 'all'],
+    queryFn: () => trucksApi.getAll(0, 1000),
   });
+  const trucks: TruckType[] = trucksData?.content || [];
 
-  const { data: trips = [] } = useQuery<Trip[]>({
-    queryKey: ['trips'],
-    queryFn: tripsApi.getAll,
+  const { data: tripsData } = useQuery({
+    queryKey: ['trips', 'all'],
+    queryFn: () => tripsApi.getAll(0, 1000),
   });
+  const trips: Trip[] = tripsData?.content || [];
 
-  const { data: incomes = [] } = useQuery<TripIncome[]>({
-    queryKey: ['incomes'],
-    queryFn: tripIncomeApi.getAll,
+  const { data: incomesData } = useQuery({
+    queryKey: ['incomes', 'all'],
+    queryFn: () => tripIncomeApi.getAll(0, 1000),
   });
+  const incomes: TripIncome[] = incomesData?.content || [];
 
-  const { data: expenses = [] } = useQuery<TripExpense[]>({
-    queryKey: ['expenses'],
-    queryFn: tripExpenseApi.getAll,
+  const { data: expensesData } = useQuery({
+    queryKey: ['expenses', 'all'],
+    queryFn: () => tripExpenseApi.getAll(0, 1000),
   });
+  const expenses: TripExpense[] = expensesData?.content || [];
 
-  const { data: fuelRecords = [] } = useQuery<FuelRecord[]>({
-    queryKey: ['fuelRecords'],
-    queryFn: fuelApi.getAll,
+  const { data: fuelRecordsData } = useQuery({
+    queryKey: ['fuelRecords', 'all'],
+    queryFn: () => fuelApi.getAll(0, 1000),
   });
+  const fuelRecords: FuelRecord[] = fuelRecordsData?.content || [];
 
-  const { data: maintenanceRecords = [] } = useQuery<MaintenanceRecord[]>({
-    queryKey: ['maintenanceRecords'],
-    queryFn: maintenanceApi.getAll,
+  const { data: maintenanceRecordsData } = useQuery({
+    queryKey: ['maintenanceRecords', 'all'],
+    queryFn: () => maintenanceApi.getAll(0, 1000),
   });
+  const maintenanceRecords: MaintenanceRecord[] = maintenanceRecordsData?.content || [];
 
   // Calculate statistics
   const stats = useMemo(() => {

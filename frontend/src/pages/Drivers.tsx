@@ -34,6 +34,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { driversApi, trucksApi } from '@/lib/api';
+import { PaginationControls } from '@/components/common/PaginationControls';
 
 const statusStyles = {
   AVAILABLE: 'bg-success/10 text-success border-success/20',
@@ -50,16 +51,22 @@ const statusLabels: Record<string, string> = {
 export default function Drivers() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [page, setPage] = useState(0);
+  const pageSize = 10;
 
-  const { data: drivers = [], isLoading: isLoadingDrivers } = useQuery({
-    queryKey: ['drivers'],
-    queryFn: driversApi.getAll,
+  const { data: paginatedData, isLoading: isLoadingDrivers } = useQuery({
+    queryKey: ['drivers', page],
+    queryFn: () => driversApi.getAll(page, pageSize),
   });
 
-  const { data: trucks = [] } = useQuery({
-    queryKey: ['trucks'],
-    queryFn: trucksApi.getAll,
+  const drivers = paginatedData?.content || [];
+
+  const { data: trucksData } = useQuery({
+    queryKey: ['trucks', 'all'],
+    queryFn: () => trucksApi.getAll(0, 100),
   });
+
+  const trucks = trucksData?.content || [];
 
   /* ... inside Drivers component ... */
   const createMutation = useMutation({
@@ -332,6 +339,17 @@ export default function Drivers() {
           <p className="text-lg font-medium text-muted-foreground">لا يوجد سائقين</p>
           <p className="text-sm text-muted-foreground">جرب تغيير البحث</p>
         </div>
+      )}
+
+      {/* Pagination Controls */}
+      {paginatedData && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={paginatedData.totalPages}
+          onPageChange={setPage}
+          isFirst={paginatedData.first}
+          isLast={paginatedData.last}
+        />
       )}
 
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>

@@ -35,6 +35,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tripsApi, driversApi, trucksApi } from '@/lib/api';
+import { PaginationControls } from '@/components/common/PaginationControls';
 
 const statusColors: Record<TripStatus, 'default' | 'secondary' | 'outline' | 'destructive' | 'success' | 'warning'> = {
   SCHEDULED: 'secondary',
@@ -53,21 +54,29 @@ const statusLabels: Record<TripStatus, string> = {
 export default function Trips() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [page, setPage] = useState(0);
+  const pageSize = 10;
 
-  const { data: trips = [], isLoading: isLoadingTrips } = useQuery({
-    queryKey: ['trips'],
-    queryFn: tripsApi.getAll,
+  const { data: paginatedData, isLoading: isLoadingTrips } = useQuery({
+    queryKey: ['trips', page],
+    queryFn: () => tripsApi.getAll(page, pageSize),
   });
 
-  const { data: drivers = [] } = useQuery({
-    queryKey: ['drivers'],
-    queryFn: driversApi.getAll,
+  const trips = paginatedData?.content || [];
+
+  const { data: driversData } = useQuery({
+    queryKey: ['drivers', 'all'],
+    queryFn: () => driversApi.getAll(0, 100),
   });
 
-  const { data: trucks = [] } = useQuery({
-    queryKey: ['trucks'],
-    queryFn: trucksApi.getAll,
+  const drivers = driversData?.content || [];
+
+  const { data: trucksData } = useQuery({
+    queryKey: ['trucks', 'all'],
+    queryFn: () => trucksApi.getAll(0, 100),
   });
+
+  const trucks = trucksData?.content || [];
 
   const createMutation = useMutation({
     mutationFn: tripsApi.create,
@@ -390,6 +399,17 @@ export default function Trips() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Pagination Controls */}
+      {paginatedData && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={paginatedData.totalPages}
+          onPageChange={setPage}
+          isFirst={paginatedData.first}
+          isLast={paginatedData.last}
+        />
+      )}
     </div>
   );
 }

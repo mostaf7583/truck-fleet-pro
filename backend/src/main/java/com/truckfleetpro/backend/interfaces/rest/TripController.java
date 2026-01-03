@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/trips")
 @RequiredArgsConstructor
@@ -16,8 +14,10 @@ public class TripController {
     private final TripService tripService;
 
     @GetMapping
-    public ResponseEntity<List<TripDTO>> getAllTrips() {
-        return ResponseEntity.ok(tripService.getAllTrips());
+    public ResponseEntity<org.springframework.data.domain.Page<TripDTO>> getAllTrips(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(tripService.getAllTrips(org.springframework.data.domain.PageRequest.of(page, size)));
     }
 
     @GetMapping("/{id}")

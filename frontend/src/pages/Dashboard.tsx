@@ -12,20 +12,23 @@ export default function Dashboard() {
     queryFn: dashboardApi.getStats,
   });
 
-  const { data: trips } = useQuery({
-    queryKey: ['trips'],
-    queryFn: tripsApi.getAll,
+  const { data: tripsData } = useQuery({
+    queryKey: ['trips', 'recent'],
+    queryFn: () => tripsApi.getAll(0, 10),
   });
+  const trips = tripsData?.content || [];
 
-  const { data: drivers } = useQuery({
-    queryKey: ['drivers'],
-    queryFn: driversApi.getAll,
+  const { data: driversData } = useQuery({
+    queryKey: ['drivers', 'all'],
+    queryFn: () => driversApi.getAll(0, 1000),
   });
+  const drivers = driversData?.content || [];
 
-  const { data: trucks } = useQuery({
-    queryKey: ['trucks'],
-    queryFn: trucksApi.getAll,
+  const { data: trucksData } = useQuery({
+    queryKey: ['trucks', 'all'],
+    queryFn: () => trucksApi.getAll(0, 1000),
   });
+  const trucks = trucksData?.content || [];
 
   if (!stats || !trips || !drivers || !trucks) {
     return <div>Loading...</div>; // Simple loading state for now

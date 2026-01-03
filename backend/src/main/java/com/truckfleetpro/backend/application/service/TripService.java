@@ -7,9 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.truckfleetpro.backend.domain.trip.TripStatus;
 
 @Service
@@ -18,10 +15,10 @@ public class TripService {
 
     private final TripRepository tripRepository;
 
-    public List<TripDTO> getAllTrips() {
-        return tripRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public org.springframework.data.domain.Page<TripDTO> getAllTrips(
+            org.springframework.data.domain.Pageable pageable) {
+        return tripRepository.findAll(pageable)
+                .map(this::mapToDTO);
     }
 
     public TripDTO getTripById(String id) {

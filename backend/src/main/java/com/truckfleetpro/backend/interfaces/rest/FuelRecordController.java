@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/fuel-records")
 @RequiredArgsConstructor
@@ -16,8 +14,10 @@ public class FuelRecordController {
     private final FuelRecordService service;
 
     @GetMapping
-    public ResponseEntity<List<FuelRecordDTO>> getAll() {
-        return ResponseEntity.ok(service.getAllRecords());
+    public ResponseEntity<org.springframework.data.domain.Page<FuelRecordDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(service.getAllRecords(org.springframework.data.domain.PageRequest.of(page, size)));
     }
 
     @PostMapping

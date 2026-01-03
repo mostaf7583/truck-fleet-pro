@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/trip-expenses")
 @RequiredArgsConstructor
@@ -16,8 +14,10 @@ public class TripExpenseController {
     private final TripExpenseService service;
 
     @GetMapping
-    public ResponseEntity<List<TripExpenseDTO>> getAll() {
-        return ResponseEntity.ok(service.getAllExpenses());
+    public ResponseEntity<org.springframework.data.domain.Page<TripExpenseDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(service.getAllExpenses(org.springframework.data.domain.PageRequest.of(page, size)));
     }
 
     @PostMapping

@@ -30,6 +30,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { trucksApi } from '@/lib/api';
+import { PaginationControls } from '@/components/common/PaginationControls';
 
 const statusStyles = {
   ACTIVE: 'bg-success/10 text-success border-success/20',
@@ -45,10 +46,15 @@ const statusLabels: Record<string, string> = {
 
 export default function Trucks() {
   const queryClient = useQueryClient();
-  const { data: trucks = [], isLoading } = useQuery({
-    queryKey: ['trucks'],
-    queryFn: trucksApi.getAll,
+  const [page, setPage] = useState(0);
+  const pageSize = 10;
+
+  const { data: paginatedData, isLoading } = useQuery({
+    queryKey: ['trucks', page],
+    queryFn: () => trucksApi.getAll(page, pageSize),
   });
+
+  const trucks = paginatedData?.content || [];
 
   const createMutation = useMutation({
     mutationFn: trucksApi.create,
@@ -432,6 +438,17 @@ export default function Trucks() {
           <p className="text-lg font-medium text-muted-foreground">لم يتم العثور على شاحنات</p>
           <p className="text-sm text-muted-foreground">حاول تغيير البحث أو الفلاتر</p>
         </div>
+      )}
+
+      {/* Pagination Controls */}
+      {paginatedData && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={paginatedData.totalPages}
+          onPageChange={setPage}
+          isFirst={paginatedData.first}
+          isLast={paginatedData.last}
+        />
       )}
     </div>
   );

@@ -34,19 +34,27 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fuelApi, trucksApi } from '@/lib/api';
 
+import { PaginationControls } from '@/components/common/PaginationControls';
+
 export default function FuelRecords() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [page, setPage] = useState(0);
+  const pageSize = 10;
 
-  const { data: records = [], isLoading: isLoadingRecords } = useQuery({
-    queryKey: ['fuelRecords'],
-    queryFn: fuelApi.getAll,
+  const { data: paginatedData, isLoading: isLoadingRecords } = useQuery({
+    queryKey: ['fuelRecords', page],
+    queryFn: () => fuelApi.getAll(page, pageSize),
   });
 
-  const { data: trucks = [] } = useQuery({
-    queryKey: ['trucks'],
-    queryFn: trucksApi.getAll,
+  const records = paginatedData?.content || [];
+
+  const { data: trucksData } = useQuery({
+    queryKey: ['trucks', 'all'],
+    queryFn: () => trucksApi.getAll(0, 100),
   });
+
+  const trucks = trucksData?.content || [];
 
   const createMutation = useMutation({
     mutationFn: fuelApi.create,
@@ -352,6 +360,17 @@ export default function FuelRecords() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Pagination Controls */}
+      {paginatedData && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={paginatedData.totalPages}
+          onPageChange={setPage}
+          isFirst={paginatedData.first}
+          isLast={paginatedData.last}
+        />
+      )}
     </div>
   );
 }

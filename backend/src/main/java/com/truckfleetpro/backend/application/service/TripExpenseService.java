@@ -5,8 +5,6 @@ import com.truckfleetpro.backend.domain.financial.TripExpense;
 import com.truckfleetpro.backend.domain.financial.TripExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.truckfleetpro.backend.domain.financial.ExpenseType;
 
@@ -16,8 +14,10 @@ public class TripExpenseService {
 
     private final TripExpenseRepository repository;
 
-    public List<TripExpenseDTO> getAllExpenses() {
-        return repository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+    public org.springframework.data.domain.Page<TripExpenseDTO> getAllExpenses(
+            org.springframework.data.domain.Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(this::mapToDTO);
     }
 
     public TripExpenseDTO createExpense(TripExpenseDTO dto) {
